@@ -33,7 +33,7 @@ const Sidebar = () => {
             <button
               key={label}
               type="button"
-              className={`flex items-center gap-4 rounded-xl px-4 py-3 text-left transition-colors 
+              className={`flex items-center gap-4 rounded-xl px-4 py-2 text-left transition-colors  cursor-pointer
                   ${
                     label === "Search"
                       ? "bg-violet-600 font-semibold text-white"
