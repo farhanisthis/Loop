@@ -28,11 +28,21 @@ const Stories = () => {
       username: "jordan",
       image: "https://i.pravatar.cc/150?img=11",
     },
+    {
+      id: 6,
+      username: "silvi",
+      image: "https://i.pravatar.cc/150?img=15",
+    },
+    {
+      id: 7,
+      username: "Natlie",
+      image: "https://i.pravatar.cc/150?img=47",
+    },
   ];
 
   return (
     <section className="mb-6 w-full rounded-2xl border border-gray-100 bg-white p-3 sm:p-4">
-      <div className="flex w-full gap-4 py-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex w-full py-1 overflow-x-auto pb-1 [scrollbar:none] [&::-webkit-scrollbar]:hidden">
         <StoryAvatar
           username="farhan"
           image="https://i.pravatar.cc/150?img=68"

@@ -1,6 +1,3 @@
-import React from "react";
-import Sidebar from "../components/layout/Sidebar";
-import StoryAvatar from "../components/stories/StoryAvatar";
 import Stories from "../components/stories/Stories";
 import posts from "../data/mockData";
 import PostCard from "../components/posts/PostCard";
