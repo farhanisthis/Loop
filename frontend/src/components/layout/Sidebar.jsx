@@ -7,17 +7,21 @@ import {
   PlusSquare,
   Infinity,
   UserRound,
+  Bookmark,
 } from "lucide-react";
 
+import { NavLink } from "react-router-dom";
+
 const navigationitems = [
-  { label: "Home", icon: Home },
-  { label: "Search", icon: Search },
-  { label: "Explore", icon: Compass },
-  { label: "Messages", icon: MessageCircle },
-  { label: "Notifications", icon: Bell },
-  { label: "Create", icon: PlusSquare },
-  { label: "My Loops", icon: Infinity },
-  { label: "Profile", icon: UserRound },
+  { label: "Home", icon: Home, path: "/" },
+  { label: "Search", icon: Search, path: "/search" },
+  { label: "Explore", icon: Compass, path: "/explore" },
+  { label: "Messages", icon: MessageCircle, path: "/messages" },
+  { label: "Notifications", icon: Bell, path: "/notifications" },
+  { label: "Create", icon: PlusSquare, path: "/create" },
+  { label: "My Loops", icon: Infinity, path: "/loops" },
+  { label: "Profile", icon: UserRound, path: "/profile" },
+  { label: "Saved", icon: Bookmark, path: "/saved" },
 ];
 
 const Sidebar = () => {
@@ -29,20 +33,24 @@ const Sidebar = () => {
       </div>
       <div>
         <nav className="flex flex-col gap-2">
-          {navigationitems.map(({ label, icon: Icon }) => (
-            <button
+          {navigationitems.map(({ label, icon: Icon, path }) => (
+            <NavLink
               key={label}
+              to={path}
+              end={path === "/"}
               type="button"
-              className={`flex items-center gap-4 rounded-xl px-4 py-2 text-left transition-colors  cursor-pointer
+              className={({ isActive }) =>
+                `flex items-center gap-4 rounded-xl px-4 py-2 text-left transition-colors  cursor-pointer
                   ${
-                    label === "Search"
+                    isActive
                       ? "bg-violet-600 font-semibold text-white"
                       : "text-gray-700 hover:bg-violet-50 hover:text-violet-700"
-                  }`}
+                  }`
+              }
             >
               <Icon size={21} />
               <span>{label}</span>
-            </button>
+            </NavLink>
           ))}
         </nav>
 

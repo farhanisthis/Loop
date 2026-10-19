@@ -7,16 +7,17 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useState } from "react";
+import { usePosts } from "../../context/PostContext";
 
-const PostCard = ({ post }) => {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+const PostCard = ({ post, onOpen }) => {
+  const { toggleLike, addComments, toggleBookmark } = usePosts();
+  const saved = post.savedByCurrentUser ?? false;
   const [showComments, setShowComments] = useState(false);
 
-  const [comments, setComments] = useState(post.comments || []);
+  const comments = post.comments ?? [];
   const [commentText, setCommentText] = useState("");
 
-  const likeCount = post.likes + (liked ? 1 : 0);
+  const likeCount = post.likes ?? 0;
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
@@ -25,14 +26,7 @@ const PostCard = ({ post }) => {
 
     if (!text) return;
 
-    setComments((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        username: "farhan",
-        text,
-      },
-    ]);
+    addComments(post.id, text);
     setCommentText("");
     setShowComments(true);
   };
@@ -45,7 +39,7 @@ const PostCard = ({ post }) => {
             <img
               src={post.avatar}
               alt={post.username}
-              className="h-10 w-10  rounded-full object-cover"
+              className="h-10 w-10  rounded-full object-cover cursor-pointer"
             />
           </div>
           <div className="min-w-0">
@@ -70,7 +64,8 @@ const PostCard = ({ post }) => {
       <img
         src={post.image}
         alt={post.imageAlt || `Post by ${post.username}`}
-        className="aspect-square w-full object-cover"
+        className="aspect-square w-full object-cover cursor-pointer"
+        onClick={onOpen}
       />
 
       {/* post acitions */}
@@ -78,12 +73,12 @@ const PostCard = ({ post }) => {
         <div className="flex w-full items-center gap-4">
           <button
             type="button"
-            onClick={() => setLiked((current) => !current)}
-            className={`transition-transform  flex items-center gap-1 ${liked ? "text-rose-500" : "text-gray-800 "} cursor-pointer`}
+            onClick={() => toggleLike(post.id)}
+            className={`transition-transform  flex items-center gap-1 ${post.likedByCurrentUser ? "text-rose-500" : "text-gray-800 "} cursor-pointer`}
           >
             <Heart
               size={24}
-              fill={liked ? "currentColor" : "none"}
+              fill={post.likedByCurrentUser ? "currentColor" : "none"}
               className="hover:scale-110"
             />
             <p className="text-sm font-semibold text-gray-900">
@@ -92,8 +87,8 @@ const PostCard = ({ post }) => {
           </button>
           <button
             type="button"
-            onClick={() => setShowComments((current) => !current)}
             className="text-gray-800 transition-transform hover:scale-110 cursor-pointer"
+            onClick={onOpen}
           >
             <MessageCircle size={23} />
           </button>
@@ -108,7 +103,11 @@ const PostCard = ({ post }) => {
             onClick={() => setSaved((current) => !current)}
             className={`transition-transform hover:scale-110 cursor-pointer ${saved ? "text-violet-600" : "text-gray-800  "}`}
           >
-            <Bookmark size={23} fill={saved ? "currentColor" : "none"} />
+            <Bookmark
+              size={23}
+              fill={saved ? "currentColor" : "none"}
+              onClick={() => toggleBookmark(post.id)}
+            />
           </button>
         </div>
         {/* Likes and captions */}
