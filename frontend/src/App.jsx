@@ -32,7 +32,7 @@ const App = () => {
   return (
     <PostProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-[#faf7fb]">
+        <div className="min-h-screen bg-app">
           <Sidebar />
           <MobileNav />
 

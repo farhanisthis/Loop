@@ -4,10 +4,16 @@ import { saveImage, deleteImage, getAvatarImage, saveAvatarImage } from "../util
 
 const PostContext = createContext();
 
-const CURRENT_USER = "Farhan";
 const DEFAULT_AVATAR = "https://i.pravatar.cc/150?img=12";
+const DEFAULT_USER_PROFILE = {
+  name: "Farhan Ali",
+  username: "Farhan",
+  bio: "Building things, learning every day.",
+  avatar: DEFAULT_AVATAR,
+};
 
 export const PostProvider = ({ children }) => {
+  // ── Posts persistence ──────────────────────────────────────────
   const [posts, setPosts] = useState(() => {
     try {
       const savedPosts = localStorage.getItem("loop-posts");
@@ -17,8 +23,63 @@ export const PostProvider = ({ children }) => {
     }
   });
 
+  // ── User profile ───────────────────────────────────────────────
+  const [userProfile, setUserProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem("loop-user-profile");
+      return saved
+        ? { ...DEFAULT_USER_PROFILE, ...JSON.parse(saved) }
+        : DEFAULT_USER_PROFILE;
+    } catch {
+      return DEFAULT_USER_PROFILE;
+    }
+  });
+
+  // ── Theme (Light / Dark) ───────────────────────────────────────
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("loop-theme");
+      if (saved) return saved;
+      return window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    } catch {
+      return "light";
+    }
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    try {
+      localStorage.setItem("loop-theme", theme);
+    } catch (err) {
+      console.error("Failed to save theme to localStorage:", err);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   // ── Current-user avatar ────────────────────────────────────────
-  const [currentUserAvatar, setCurrentUserAvatar] = useState(DEFAULT_AVATAR);
+  const [currentUserAvatar, setCurrentUserAvatar] = useState(() => {
+    try {
+      const saved = localStorage.getItem("loop-user-profile");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.avatar) return parsed.avatar;
+      }
+    } catch {
+      // fallback
+    }
+    return DEFAULT_AVATAR;
+  });
   const avatarObjectUrlRef = useRef(null);
 
   // Load persisted avatar from IndexedDB on mount.
@@ -28,7 +89,12 @@ export const PostProvider = ({ children }) => {
     async function loadAvatar() {
       try {
         const blob = await getAvatarImage();
-        if (!blob || cancelled) return;
+        if (!blob || cancelled) {
+          if (userProfile.avatar && userProfile.avatar !== DEFAULT_AVATAR) {
+            setCurrentUserAvatar(userProfile.avatar);
+          }
+          return;
+        }
 
         const url = URL.createObjectURL(blob);
         avatarObjectUrlRef.current = url;
@@ -37,7 +103,7 @@ export const PostProvider = ({ children }) => {
         // Also patch any already-loaded posts so they show the right avatar.
         setPosts((current) =>
           current.map((post) =>
-            post.username.toLowerCase() === CURRENT_USER.toLowerCase()
+            post.username.toLowerCase() === userProfile.username.toLowerCase()
               ? { ...post, avatar: url }
               : post,
           ),
@@ -55,9 +121,49 @@ export const PostProvider = ({ children }) => {
         URL.revokeObjectURL(avatarObjectUrlRef.current);
       }
     };
-  }, []);
+  }, [userProfile.username]);
 
-  // Persist a new avatar and propagate it everywhere.
+  // Update user profile fields and sync them across the app.
+  const updateUserProfile = (updates) => {
+    setUserProfile((prev) => {
+      const updated = { ...prev, ...updates };
+      try {
+        localStorage.setItem("loop-user-profile", JSON.stringify(updated));
+      } catch (err) {
+        console.error("Failed to save profile to localStorage:", err);
+      }
+      return updated;
+    });
+
+    // If avatar URL was modified, update currentUserAvatar and posts
+    if (updates.avatar && updates.avatar !== currentUserAvatar) {
+      if (avatarObjectUrlRef.current) {
+        URL.revokeObjectURL(avatarObjectUrlRef.current);
+        avatarObjectUrlRef.current = null;
+      }
+      setCurrentUserAvatar(updates.avatar);
+      setPosts((current) =>
+        current.map((post) =>
+          post.username.toLowerCase() === (updates.username || userProfile.username).toLowerCase()
+            ? { ...post, avatar: updates.avatar }
+            : post,
+        ),
+      );
+    }
+
+    // If username changed, update author on posts authored by current user
+    if (updates.username && updates.username !== userProfile.username) {
+      setPosts((current) =>
+        current.map((post) =>
+          post.username.toLowerCase() === userProfile.username.toLowerCase()
+            ? { ...post, username: updates.username }
+            : post,
+        ),
+      );
+    }
+  };
+
+  // Persist a new avatar file in IndexedDB and propagate it everywhere.
   const updateAvatar = async (file) => {
     if (avatarObjectUrlRef.current) {
       URL.revokeObjectURL(avatarObjectUrlRef.current);
@@ -66,11 +172,20 @@ export const PostProvider = ({ children }) => {
     const url = URL.createObjectURL(file);
     avatarObjectUrlRef.current = url;
     setCurrentUserAvatar(url);
+    setUserProfile((prev) => {
+      const updated = { ...prev, avatar: url };
+      try {
+        localStorage.setItem("loop-user-profile", JSON.stringify(updated));
+      } catch (err) {
+        console.error("Failed to save avatar to localStorage:", err);
+      }
+      return updated;
+    });
 
     // Update post.avatar on every post authored by the current user.
     setPosts((current) =>
       current.map((post) =>
-        post.username.toLowerCase() === CURRENT_USER.toLowerCase()
+        post.username.toLowerCase() === userProfile.username.toLowerCase()
           ? { ...post, avatar: url }
           : post,
       ),
@@ -83,7 +198,6 @@ export const PostProvider = ({ children }) => {
     }
   };
 
-  // ── Posts persistence ──────────────────────────────────────────
   useEffect(() => {
     localStorage.setItem("loop-posts", JSON.stringify(posts));
   }, [posts]);
@@ -124,7 +238,7 @@ export const PostProvider = ({ children }) => {
 
     const newComment = {
       id: crypto.randomUUID(),
-      username: CURRENT_USER,
+      username: userProfile.username,
       text: trimmedText,
       timeAgo: "Just now",
     };
@@ -145,7 +259,7 @@ export const PostProvider = ({ children }) => {
 
     const newPost = {
       id: postId,
-      username: CURRENT_USER,
+      username: userProfile.username,
       avatar: currentUserAvatar,
       imageId: postId,
       imageAlt: "New post",
@@ -207,6 +321,10 @@ export const PostProvider = ({ children }) => {
         posts,
         currentUserAvatar,
         updateAvatar,
+        userProfile,
+        updateUserProfile,
+        theme,
+        toggleTheme,
         createPost,
         toggleLike,
         addComment,

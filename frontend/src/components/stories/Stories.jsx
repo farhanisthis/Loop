@@ -74,7 +74,7 @@ const removeExpiredStories = (stories) =>
   );
 
 const Stories = () => {
-  const { currentUserAvatar } = usePosts();
+  const { currentUserAvatar, userProfile } = usePosts();
   const [activeIndex, setActiveIndex] = useState(null);
   const [progress, setProgress] = useState(0);
 
@@ -110,14 +110,15 @@ const Stories = () => {
   // Keep the avatar on any of the current user's stored stories in sync
   // with the current avatar (handles avatar changes after stories were created).
   useEffect(() => {
+    const currentUsername = (userProfile?.username || "Farhan").toLowerCase();
     setUserStories((current) =>
       current.map((story) =>
-        story.username.toLowerCase() === "farhan"
+        story.username.toLowerCase() === currentUsername || story.username.toLowerCase() === "farhan"
           ? { ...story, avatar: currentUserAvatar }
           : story,
       ),
     );
-  }, [currentUserAvatar]);
+  }, [currentUserAvatar, userProfile?.username]);
 
   useEffect(() => {
     let cancelled = false;
@@ -340,7 +341,7 @@ const Stories = () => {
       {/* Create story modal */}
       {showCreateStory && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-2xl border border-theme bg-surface p-6 shadow-xl">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">
                 Create a story
@@ -415,7 +416,7 @@ const Stories = () => {
                 const newStory = {
                   id: storyId,
                   imageId: storyId,
-                  username: "Farhan",
+                  username: userProfile?.username || "Farhan",
                   avatar: currentUserAvatar,
                   image: URL.createObjectURL(storyFile),
                   createdAt: Date.now(),

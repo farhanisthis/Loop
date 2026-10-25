@@ -68,7 +68,7 @@ const CreatePost = () => {
 
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-8 sm:px-0">
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+      <div className="rounded-2xl border border-theme bg-surface p-5 shadow-sm sm:p-7">
         <div className="mb-6">
           <h1 className="text-xl font-bold text-gray-900">Create a post</h1>
           <p className="mt-1 text-sm text-gray-400">
@@ -96,7 +96,7 @@ const CreatePost = () => {
             {!previewUrl ? (
               <label
                 htmlFor="post-image"
-                className="flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-6 text-center transition hover:border-violet-400 hover:bg-violet-50/40"
+                className="flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-900 p-6 text-center transition hover:border-violet-400 hover:bg-gray-900/40"
               >
                 <ImagePlus size={38} className="mb-3 text-violet-500" />
 
@@ -153,7 +153,7 @@ const CreatePost = () => {
               placeholder="Write something about this moment..."
               maxLength={500}
               rows={4}
-              className="w-full resize-none rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="w-full resize-none rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-violet-500  focus:ring-2 focus:ring-violet-100"
             />
 
             <p className="mt-1 text-right text-xs text-gray-400">

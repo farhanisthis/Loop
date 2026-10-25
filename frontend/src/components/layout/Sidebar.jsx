@@ -1,11 +1,7 @@
 import {
   Home,
-  Search,
-  Compass,
-  MessageCircle,
-  Bell,
   PlusSquare,
-  Infinity,
+  Infinity as LoopIcon,
   UserRound,
   Bookmark,
 } from "lucide-react";
@@ -17,19 +13,24 @@ const navigationitems = [
   { label: "Home", icon: Home, path: "/" },
   // { label: "Messages", icon: MessageCircle, path: "/messages" },
   { label: "Create", icon: PlusSquare, path: "/create" },
-  { label: "My Loops", icon: Infinity, path: "/loops" },
+  // { label: "My Loops", icon: Infinity, path: "/loops" },
   { label: "Profile", icon: UserRound, path: "/profile" },
   { label: "Saved", icon: Bookmark, path: "/saved" },
 ];
 
 const Sidebar = () => {
-  const { currentUserAvatar } = usePosts();
+  const { currentUserAvatar, userProfile } = usePosts();
+
+  const displayName = userProfile?.name || userProfile?.username || "Farhan";
+  const displayUsername = userProfile?.username?.toLowerCase().replace(/\s+/g, "") || "farhan";
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-60 flex-col border-r border-gray-100 bg-white px-3 py-6 shadow-[1px_0_0_0_#f3f4f6] md:flex">
+    <aside className="fixed left-0 top-0 hidden h-screen w-60 flex-col border-r border-theme bg-surface px-3 py-6 shadow-theme-sidebar md:flex">
       <div className="mb-8 flex items-center gap-2 px-3">
-        <Infinity size={26} className="text-violet-600" />
-        <span className="text-xl font-bold tracking-tight text-gray-900">Loop</span>
+        <LoopIcon size={26} className="text-violet-600" />
+        <span className="text-xl font-bold tracking-tight text-gray-900">
+          Loop
+        </span>
       </div>
 
       <nav className="flex flex-1 flex-col gap-0.5">
@@ -52,16 +53,20 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="mt-4 flex items-center gap-3 rounded-xl bg-gray-50 p-3">
+      <div className="mt-4 flex items-center gap-3 rounded-xl border border-theme bg-subtle p-3">
         <img
-          src={currentUserAvatar}
+          src={currentUserAvatar || userProfile?.avatar}
           alt="Your profile"
           className="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-violet-100"
         />
 
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-gray-900">Farhan</p>
-          <p className="truncate text-xs text-gray-400">@farhanisthis</p>
+          <p className="truncate text-sm font-semibold text-gray-900">
+            {displayName}
+          </p>
+          <p className="truncate text-xs text-gray-400">
+            @{displayUsername}
+          </p>
         </div>
       </div>
     </aside>

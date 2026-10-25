@@ -25,7 +25,7 @@ const MobileNav = () => {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-theme-strong bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <div className="flex h-16 items-center justify-around">
         {mobileNavigationItems.map(({ label, icon: Icon, path }) => (

@@ -42,7 +42,7 @@ const PostCard = ({ post, onOpen }) => {
   };
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <article className="overflow-hidden rounded-2xl border border-theme bg-surface shadow-sm">
       {/* Post header */}
       <div className="relative flex items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
@@ -76,7 +76,7 @@ const PostCard = ({ post, onOpen }) => {
           </button>
 
           {showPostMenu && (
-            <div className="absolute right-0 top-full z-30 mt-1 w-44 rounded-xl border border-gray-100 bg-white p-1 shadow-lg">
+            <div className="absolute right-0 top-full z-30 mt-1 w-44 rounded-xl border border-theme bg-surface p-1 shadow-lg">
               <button
                 type="button"
                 onClick={() => {
@@ -110,7 +110,7 @@ const PostCard = ({ post, onOpen }) => {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="delete-post-title"
-                className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                className="w-full max-w-sm rounded-2xl border border-theme bg-surface p-6 shadow-xl"
               >
                 <h2
                   id="delete-post-title"
@@ -283,7 +283,7 @@ const PostCard = ({ post, onOpen }) => {
               setShowEditModal(false);
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-2xl border border-theme bg-surface p-6 shadow-xl"
           >
             <h2 className="text-base font-bold text-gray-900">Edit caption</h2>
 
