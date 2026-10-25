@@ -1,10 +1,94 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import initialPosts from "../data/mockData";
-import { saveImage } from "../utils/imageStorage";
+import { saveImage, deleteImage, getAvatarImage, saveAvatarImage } from "../utils/imageStorage";
 
 const PostContext = createContext();
 
+const CURRENT_USER = "Farhan";
+const DEFAULT_AVATAR = "https://i.pravatar.cc/150?img=12";
+
 export const PostProvider = ({ children }) => {
+  const [posts, setPosts] = useState(() => {
+    try {
+      const savedPosts = localStorage.getItem("loop-posts");
+      return savedPosts ? JSON.parse(savedPosts) : initialPosts;
+    } catch {
+      return initialPosts;
+    }
+  });
+
+  // ── Current-user avatar ────────────────────────────────────────
+  const [currentUserAvatar, setCurrentUserAvatar] = useState(DEFAULT_AVATAR);
+  const avatarObjectUrlRef = useRef(null);
+
+  // Load persisted avatar from IndexedDB on mount.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAvatar() {
+      try {
+        const blob = await getAvatarImage();
+        if (!blob || cancelled) return;
+
+        const url = URL.createObjectURL(blob);
+        avatarObjectUrlRef.current = url;
+        setCurrentUserAvatar(url);
+
+        // Also patch any already-loaded posts so they show the right avatar.
+        setPosts((current) =>
+          current.map((post) =>
+            post.username.toLowerCase() === CURRENT_USER.toLowerCase()
+              ? { ...post, avatar: url }
+              : post,
+          ),
+        );
+      } catch (err) {
+        console.error("Failed to load avatar:", err);
+      }
+    }
+
+    loadAvatar();
+
+    return () => {
+      cancelled = true;
+      if (avatarObjectUrlRef.current) {
+        URL.revokeObjectURL(avatarObjectUrlRef.current);
+      }
+    };
+  }, []);
+
+  // Persist a new avatar and propagate it everywhere.
+  const updateAvatar = async (file) => {
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+    }
+
+    const url = URL.createObjectURL(file);
+    avatarObjectUrlRef.current = url;
+    setCurrentUserAvatar(url);
+
+    // Update post.avatar on every post authored by the current user.
+    setPosts((current) =>
+      current.map((post) =>
+        post.username.toLowerCase() === CURRENT_USER.toLowerCase()
+          ? { ...post, avatar: url }
+          : post,
+      ),
+    );
+
+    try {
+      await saveAvatarImage(file);
+    } catch (err) {
+      console.error("Failed to save avatar:", err);
+    }
+  };
+
+  // ── Posts persistence ──────────────────────────────────────────
+  useEffect(() => {
+    localStorage.setItem("loop-posts", JSON.stringify(posts));
+  }, [posts]);
+
+  // ── Post actions ───────────────────────────────────────────────
   const toggleLike = (postId) => {
     setPosts((currentPosts) =>
       currentPosts.map((post) => {
@@ -40,7 +124,7 @@ export const PostProvider = ({ children }) => {
 
     const newComment = {
       id: crypto.randomUUID(),
-      username: "Farhan",
+      username: CURRENT_USER,
       text: trimmedText,
       timeAgo: "Just now",
     };
@@ -53,33 +137,17 @@ export const PostProvider = ({ children }) => {
       ),
     );
   };
-  const [posts, setPosts] = useState(() => {
-    try {
-      const savedPosts = localStorage.getItem("loop-posts");
-      return savedPosts ? JSON.parse(savedPosts) : initialPosts;
-    } catch {
-      return initialPosts;
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem("loop-posts", JSON.stringify(posts));
-  }, [posts]);
 
   const createPost = async ({ imageFile, caption }) => {
     const postId = crypto.randomUUID();
 
-    // Save the image file in IndexedDB first
     await saveImage(postId, imageFile);
 
     const newPost = {
       id: postId,
-      username: "Farhan",
-      avatar: "https://i.pravatar.cc/150?img=12",
-
-      // Store the image ID instead of a temporary URL
+      username: CURRENT_USER,
+      avatar: currentUserAvatar,
       imageId: postId,
-
       imageAlt: "New post",
       location: "",
       likes: 0,
@@ -97,12 +165,10 @@ export const PostProvider = ({ children }) => {
     const postToDelete = posts.find((post) => post.id === postId);
     if (!postToDelete) return;
 
-    // Remove the post from shared state first.
     setPosts((currentPosts) =>
       currentPosts.filter((post) => post.id !== postId),
     );
 
-    // Remove its stored image, if it has one.
     if (postToDelete.imageId) {
       try {
         await deleteImage(postToDelete.imageId);
@@ -139,6 +205,8 @@ export const PostProvider = ({ children }) => {
     <PostContext.Provider
       value={{
         posts,
+        currentUserAvatar,
+        updateAvatar,
         createPost,
         toggleLike,
         addComment,

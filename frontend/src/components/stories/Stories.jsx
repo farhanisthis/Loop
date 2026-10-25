@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, ChevronLeft, ChevronRight, Plus, ImagePlus } from "lucide-react";
 import { saveStoryImage, getStoryImage } from "../../utils/imageStorage";
+import { usePosts } from "../../context/PostContext";
 
 const storiesData = [
   {
@@ -73,6 +74,7 @@ const removeExpiredStories = (stories) =>
   );
 
 const Stories = () => {
+  const { currentUserAvatar } = usePosts();
   const [activeIndex, setActiveIndex] = useState(null);
   const [progress, setProgress] = useState(0);
 
@@ -104,6 +106,18 @@ const Stories = () => {
   useEffect(() => {
     localStorage.setItem("loop-stories", JSON.stringify(userStories));
   }, [userStories]);
+
+  // Keep the avatar on any of the current user's stored stories in sync
+  // with the current avatar (handles avatar changes after stories were created).
+  useEffect(() => {
+    setUserStories((current) =>
+      current.map((story) =>
+        story.username.toLowerCase() === "farhan"
+          ? { ...story, avatar: currentUserAvatar }
+          : story,
+      ),
+    );
+  }, [currentUserAvatar]);
 
   useEffect(() => {
     let cancelled = false;
@@ -201,23 +215,24 @@ const Stories = () => {
   return (
     <>
       {/* Story circles */}
-      <div className="flex gap-4 overflow-x-auto px-1 py-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-none]">
+      <div className="flex gap-4 overflow-x-auto pb-2 pt-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* Your Story button */}
         <button
           type="button"
           onClick={() => setShowCreateStory(true)}
           className="flex shrink-0 flex-col items-center gap-1.5 cursor-pointer"
         >
-          <span className="relative flex h-[62px] w-[62px] items-center justify-center rounded-full border-2 border-gray-200 bg-gray-50">
+          <span className="relative flex h-[58px] w-[58px] items-center justify-center rounded-full border-2 border-gray-200 bg-gray-50">
             <img
-              src="https://i.pravatar.cc/150?img=12"
+              src={currentUserAvatar}
               alt=""
               className="h-full w-full rounded-full object-cover"
             />
-            <span className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-violet-600 p-0.5 text-white">
-              <Plus size={16} />
+            <span className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-violet-600 p-[3px] text-white">
+              <Plus size={12} strokeWidth={2.5} />
             </span>
           </span>
-          <span className="text-xs text-gray-700">Your Story</span>
+          <span className="text-xs text-gray-600">Your Story</span>
         </button>
 
         {displayedStories.map((story, index) => (
@@ -233,15 +248,15 @@ const Stories = () => {
             }}
             className="flex shrink-0 flex-col items-center gap-1.5 cursor-pointer"
           >
-            <span className="rounded-full bg-linear-to-tr from-yellow-400 via-pink-500 to-violet-600 p-0.75">
+            <span className="rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-violet-600 p-[2px]">
               <img
                 src={story.avatar}
                 alt=""
-                className="h-14 w-14 rounded-full border-2 border-white object-cover"
+                className="h-[54px] w-[54px] rounded-full border-2 border-white object-cover"
               />
             </span>
 
-            <span className="max-w-16 truncate text-xs text-gray-700">
+            <span className="max-w-[58px] truncate text-xs text-gray-600">
               {story.username}
             </span>
           </button>
@@ -255,7 +270,7 @@ const Stories = () => {
           onClick={() => setActiveIndex(null)}
         >
           <div
-            className="relative h-[85dvh] w-full max-w-md overflow-hidden rounded-2xl bg-gray-900"
+            className="relative h-[85dvh] w-full max-w-[380px] overflow-hidden rounded-2xl bg-gray-900 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
             onPointerDown={() => setIsPaused(true)}
             onPointerUp={() => setIsPaused(false)}
@@ -268,10 +283,12 @@ const Stories = () => {
               className="absolute inset-0 h-full w-full object-cover"
             />
 
-            <div className="absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/60 to-transparent p-3">
-              <div className="mb-3 h-1 overflow-hidden rounded-full bg-white/40">
+            {/* Header overlay */}
+            <div className="absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/60 via-black/20 to-transparent p-3 pb-6">
+              {/* Progress bar */}
+              <div className="mb-3 h-[3px] overflow-hidden rounded-full bg-white/30">
                 <div
-                  className="h-full bg-white transition-none"
+                  className="h-full bg-white"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -280,10 +297,10 @@ const Stories = () => {
                 <img
                   src={activeStory.avatar}
                   alt=""
-                  className="h-9 w-9 rounded-full border border-white/60 object-cover"
+                  className="h-8 w-8 rounded-full border border-white/70 object-cover"
                 />
 
-                <span className="flex-1 text-sm font-semibold text-white">
+                <span className="flex-1 text-sm font-semibold text-white drop-shadow">
                   {activeStory.username}
                 </span>
 
@@ -291,39 +308,41 @@ const Stories = () => {
                   type="button"
                   onClick={() => setActiveIndex(null)}
                   aria-label="Close story"
-                  className="rounded-full p-2 text-white hover:bg-white/20"
+                  className="rounded-full p-1.5 text-white/90 transition hover:bg-white/20 cursor-pointer"
                 >
-                  <X size={22} />
+                  <X size={20} />
                 </button>
               </div>
             </div>
 
+            {/* Navigation areas */}
             <button
               type="button"
               onClick={goPrevious}
               aria-label="Previous story"
-              className="absolute inset-y-16 left-0 z-10 flex w-1/4 items-center justify-start pl-2 text-white cursor-pointer"
+              className="absolute inset-y-16 left-0 z-10 flex w-1/4 items-center justify-start pl-3 text-white/70 transition hover:text-white cursor-pointer"
             >
-              <ChevronLeft size={28} />
+              <ChevronLeft size={26} />
             </button>
 
             <button
               type="button"
               onClick={goNext}
               aria-label="Next story"
-              className="absolute inset-y-16 right-0 z-10 flex w-1/4 items-center justify-end pr-2 text-white cursor-pointer"
+              className="absolute inset-y-16 right-0 z-10 flex w-1/4 items-center justify-end pr-3 text-white/70 transition hover:text-white cursor-pointer"
             >
-              <ChevronRight size={28} />
+              <ChevronRight size={26} />
             </button>
           </div>
         </div>
       )}
 
+      {/* Create story modal */}
       {showCreateStory && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900">
                 Create a story
               </h2>
               <button
@@ -334,13 +353,13 @@ const Stories = () => {
                   setStoryPreview("");
                 }}
                 aria-label="Close"
-                className="rounded-full p-2 hover:bg-gray-100"
+                className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            <label className="flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center hover:border-violet-400">
+            <label className="flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-6 text-center transition hover:border-violet-400 hover:bg-violet-50/40">
               {storyPreview ? (
                 <img
                   src={storyPreview}
@@ -349,11 +368,11 @@ const Stories = () => {
                 />
               ) : (
                 <>
-                  <ImagePlus size={40} className="mb-3 text-violet-600" />
-                  <span className="font-semibold text-gray-800">
+                  <ImagePlus size={36} className="mb-3 text-violet-500" />
+                  <span className="font-semibold text-gray-700">
                     Choose a photo
                   </span>
-                  <span className="mt-1 text-sm text-gray-500">
+                  <span className="mt-1 text-sm text-gray-400">
                     Select an image for your story
                   </span>
                 </>
@@ -397,7 +416,7 @@ const Stories = () => {
                   id: storyId,
                   imageId: storyId,
                   username: "Farhan",
-                  avatar: "https://i.pravatar.cc/150?img=12",
+                  avatar: currentUserAvatar,
                   image: URL.createObjectURL(storyFile),
                   createdAt: Date.now(),
                 };
@@ -408,7 +427,7 @@ const Stories = () => {
                 setStoryFile(null);
                 setStoryPreview("");
               }}
-              className="mt-5 w-full rounded-xl bg-violet-600 px-4 py-3 font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+              className="mt-4 w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
               Share story
             </button>

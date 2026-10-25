@@ -36,7 +36,7 @@ const App = () => {
           <Sidebar />
           <MobileNav />
 
-          <main className="w-full md:ml-[235px] md:w-[calc(100%-235px)]">
+          <main className="w-full pb-[env(safe-area-inset-bottom)] md:ml-60 md:w-[calc(100%-15rem)]">
             <Routes>
               <Route path="/" element={<HomePage posts={posts} />} />
 

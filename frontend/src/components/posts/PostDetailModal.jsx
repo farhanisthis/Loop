@@ -76,9 +76,9 @@ function PostDetailModal({ post, onClose }) {
           type="button"
           onClick={onClose}
           aria-label="Close post"
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-2 text-gray-800 shadow-sm transition hover:bg-white cursor-pointer"
+          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 text-gray-700 shadow-sm transition hover:bg-white hover:text-gray-900 cursor-pointer"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
         {/* Post image */}
@@ -94,12 +94,11 @@ function PostDetailModal({ post, onClose }) {
         {/* Post details */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col md:w-[45%]">
           {/* Author header */}
-
-          <header className="flex items-center gap-3 border-b border-gray-100 p-4">
+          <header className="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
             <img
               src={currentPost.avatar}
               alt=""
-              className="h-10 w-10 rounded-full object-cover"
+              className="h-9 w-9 rounded-full object-cover ring-2 ring-gray-100"
             />
 
             <div className="min-w-0 flex-1">
@@ -107,7 +106,7 @@ function PostDetailModal({ post, onClose }) {
                 {currentPost.username}
               </p>
               {currentPost.location && (
-                <p className="truncate text-xs text-gray-500">
+                <p className="truncate text-xs text-gray-400">
                   {currentPost.location}
                 </p>
               )}
@@ -118,13 +117,13 @@ function PostDetailModal({ post, onClose }) {
                 type="button"
                 aria-label="More post options"
                 onClick={() => setShowPostMenu((open) => !open)}
-                className="rounded-full p-2 text-gray-600 hover:bg-gray-100"
+                className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
               >
-                <MoreHorizontal size={21} />
+                <MoreHorizontal size={20} />
               </button>
 
               {showPostMenu && (
-                <div className="absolute right-0 top-full z-40 mt-1 w-44 rounded-xl border border-gray-200 bg-white p-1 shadow-lg">
+                <div className="absolute right-0 top-full z-40 mt-1 w-44 rounded-xl border border-gray-100 bg-white p-1 shadow-lg">
                   <button
                     type="button"
                     onClick={() => {
@@ -132,9 +131,9 @@ function PostDetailModal({ post, onClose }) {
                       setShowPostMenu(false);
                       setShowEditModal(true);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
                   >
-                    <Pencil size={16} />
+                    <Pencil size={15} />
                     Edit caption
                   </button>
 
@@ -144,9 +143,9 @@ function PostDetailModal({ post, onClose }) {
                       setShowPostMenu(false);
                       setShowDeleteConfirm(true);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={15} />
                     Delete post
                   </button>
                 </div>
@@ -155,16 +154,16 @@ function PostDetailModal({ post, onClose }) {
           </header>
 
           {/* Caption and comments */}
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3">
             <div className="flex items-start gap-3">
               <img
                 src={currentPost.avatar}
                 alt=""
-                className="h-9 w-9 shrink-0 rounded-full object-cover"
+                className="h-8 w-8 shrink-0 rounded-full object-cover"
               />
 
-              <p className="min-w-0 text-sm leading-6 text-gray-700">
-                <span className="mr-2 font-semibold text-gray-900">
+              <p className="min-w-0 text-sm leading-relaxed text-gray-700">
+                <span className="mr-1.5 font-semibold text-gray-900">
                   {currentPost.username}
                 </span>
                 {currentPost.caption}
@@ -175,45 +174,48 @@ function PostDetailModal({ post, onClose }) {
             </div>
 
             {comments.length === 0 ? (
-              <div className="py-6 text-center cursor-pointer">
+              <div className="py-8 text-center">
                 <MessageCircle
-                  size={28}
-                  className="mx-auto mb-2 text-gray-300"
+                  size={26}
+                  className="mx-auto mb-2 text-gray-200"
                 />
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-sm font-medium text-gray-600">
                   No comments yet
                 </p>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-0.5 text-xs text-gray-400">
                   Start the conversation.
                 </p>
               </div>
             ) : (
               comments.map((comment) => (
-                <div key={comment.id} className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
+                <div key={comment.id} className="group flex items-start gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-semibold text-violet-700">
                     {comment.username?.charAt(0).toUpperCase() || "U"}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm leading-6 text-gray-700">
-                      <span className="mr-2 font-semibold text-gray-900">
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      <span className="mr-1.5 font-semibold text-gray-900">
                         {comment.username}
                       </span>
                       {comment.text}
                     </p>
 
                     {comment.timeAgo && (
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-0.5 text-xs text-gray-400">
                         {comment.timeAgo}
                       </p>
                     )}
                   </div>
+
                   <button
+                    type="button"
                     onClick={() => deleteComment(post.id, comment.id)}
                     aria-label="Delete comment"
                     title="Delete comment"
+                    className="shrink-0 rounded-lg p-1 text-gray-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 cursor-pointer"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               ))
@@ -221,38 +223,44 @@ function PostDetailModal({ post, onClose }) {
           </div>
 
           {/* Actions and like count */}
-          <div className="border-t border-gray-100 px-4 pt-3">
-            <div className="flex items-center gap-4">
+          <div className="border-t border-gray-100 px-4 pt-3 pb-1">
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => toggleLike(currentPost.id)}
                 aria-label={isLiked ? "Unlike post" : "Like post"}
                 aria-pressed={isLiked}
-                className={`transition-transform hover:scale-110 ${
-                  isLiked ? "text-rose-500" : "text-gray-800"
+                className={`rounded-lg p-1.5 transition-colors cursor-pointer ${
+                  isLiked
+                    ? "text-rose-500"
+                    : "text-gray-700 hover:text-rose-500"
                 }`}
               >
-                <Heart size={24} fill={isLiked ? "currentColor" : "none"} />
+                <Heart
+                  size={22}
+                  fill={isLiked ? "currentColor" : "none"}
+                  className="transition-transform active:scale-90"
+                />
               </button>
 
               <button
                 type="button"
                 aria-label="Comments"
-                className="text-gray-800"
+                className="rounded-lg p-1.5 text-gray-700 transition-colors hover:text-violet-600 cursor-pointer"
               >
-                <MessageCircle size={23} />
+                <MessageCircle size={22} />
               </button>
 
               <button
                 type="button"
                 aria-label="Share post"
-                className="text-gray-800"
+                className="rounded-lg p-1.5 text-gray-700 transition-colors hover:text-violet-600 cursor-pointer"
               >
-                <Send size={22} />
+                <Send size={21} />
               </button>
             </div>
 
-            <p className="mt-2 text-sm font-semibold text-gray-900">
+            <p className="mt-1.5 text-sm font-semibold text-gray-900">
               {(currentPost.likes ?? 0).toLocaleString()} likes
             </p>
           </div>
@@ -266,15 +274,15 @@ function PostDetailModal({ post, onClose }) {
               type="text"
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
-              placeholder="Add a comment..."
+              placeholder="Add a comment…"
               aria-label="Write a comment"
-              className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-gray-400"
+              className="min-w-0 flex-1 bg-transparent py-1 text-sm outline-none placeholder:text-gray-400"
             />
 
             <button
               type="submit"
               disabled={!commentText.trim()}
-              className="text-sm font-semibold text-violet-600 hover:text-violet-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="shrink-0 text-sm font-semibold text-violet-600 transition-colors hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
               Post
             </button>
@@ -298,7 +306,7 @@ function PostDetailModal({ post, onClose }) {
             onClick={(event) => event.stopPropagation()}
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
           >
-            <h2 className="text-lg font-bold text-gray-900">Edit caption</h2>
+            <h2 className="text-base font-bold text-gray-900">Edit caption</h2>
 
             <textarea
               autoFocus
@@ -307,21 +315,21 @@ function PostDetailModal({ post, onClose }) {
               maxLength={500}
               rows={4}
               placeholder="Write a caption..."
-              className="mt-4 w-full resize-none rounded-xl border border-gray-300 p-3 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="mt-4 w-full resize-none rounded-xl border border-gray-200 p-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
             />
 
             <div className="mt-5 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowEditModal(false)}
-                className="rounded-lg px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
               >
                 Cancel
               </button>
 
               <button
                 type="submit"
-                className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+                className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700"
               >
                 Save changes
               </button>
@@ -344,7 +352,7 @@ function PostDetailModal({ post, onClose }) {
           >
             <h2
               id="modal-delete-title"
-              className="text-lg font-bold text-gray-900"
+              className="text-base font-bold text-gray-900"
             >
               Delete this post?
             </h2>
@@ -357,7 +365,7 @@ function PostDetailModal({ post, onClose }) {
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="rounded-lg px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
               >
                 Cancel
               </button>
@@ -369,7 +377,7 @@ function PostDetailModal({ post, onClose }) {
                   setShowDeleteConfirm(false);
                   onClose();
                 }}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
               >
                 Delete
               </button>

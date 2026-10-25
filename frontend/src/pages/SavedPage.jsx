@@ -11,27 +11,27 @@ const SavedPage = () => {
   const savedPosts = posts.filter((post) => post.savedByCurrentUser ?? false);
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl px-4 py-8 sm:px-8">
-      <div className="mb-6 flex items-center gap-3 border-b border-gray-200 pb-5">
-        <Bookmark size={26} />
+    <div className="mx-auto min-h-screen max-w-5xl px-4 py-8 pb-20 sm:px-8 md:pb-8">
+      <div className="mb-6 flex items-center gap-3 border-b border-gray-100 pb-5">
+        <Bookmark size={22} className="text-gray-700" />
         <div>
-          <h1 className="text-2xl font-semibold">Saved Posts</h1>
-          <p className="text-sm text-gray-500">Posts you've bookmarked</p>
+          <h1 className="text-xl font-semibold text-gray-900">Saved Posts</h1>
+          <p className="text-xs text-gray-400">Posts you've bookmarked</p>
         </div>
       </div>
 
       {savedPosts.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">
-          <div className="mb-4 rounded-full border-2 border-gray-900 p-4">
-            <Bookmark size={32} />
+          <div className="mb-4 rounded-full border-2 border-gray-200 p-5">
+            <Bookmark size={28} className="text-gray-400" />
           </div>
-          <h2 className="text-xl font-bold">Save posts you love</h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-gray-900">Save posts you love</h2>
+          <p className="mt-1.5 text-sm text-gray-400">
             Posts you bookmark will appear here.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-1 sm:gap-4">
+        <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
           {savedPosts.map((post) => (
             <button
               key={post.id}
@@ -46,8 +46,8 @@ const SavedPage = () => {
                 alt={post.imageAlt || post.caption || "Saved post"}
                 className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 flex items-end bg-black/0 p-3 opacity-0 transition group-hover:bg-black/50 group-hover:opacity-100">
-                <p className="line-clamp-3 text-sm font-medium text-white">
+              <div className="absolute inset-0 flex items-end bg-black/0 p-3 opacity-0 transition-all duration-200 group-hover:bg-black/50 group-hover:opacity-100">
+                <p className="line-clamp-3 text-xs font-medium text-white sm:text-sm">
                   {post.caption}
                 </p>
               </div>

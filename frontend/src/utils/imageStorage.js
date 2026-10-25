@@ -30,3 +30,13 @@ export async function getStoryImage(id) {
   const db = await dbPromise;
   return db.get("images", `story-${id}`);
 }
+
+export async function saveAvatarImage(file) {
+  const db = await dbPromise;
+  await db.put("images", file, "avatar-current");
+}
+
+export async function getAvatarImage() {
+  const db = await dbPromise;
+  return db.get("images", "avatar-current");
+}

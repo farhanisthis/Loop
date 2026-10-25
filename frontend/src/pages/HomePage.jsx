@@ -6,23 +6,21 @@ import PostDetailModal from "../components/posts/PostDetailModal";
 
 const HomePage = () => {
   const { posts } = usePosts();
-  console.log(posts);
   const [selectedPost, setSelectedPost] = useState(null);
 
   return (
-    <div>
-      <div className="mx-auto max-w-2xl px-4 py-6 ">
-        <Stories />
-        <section className="mx-auto w-full max-w-2xl px-3 py-4 sm:px-4 sm:py-6">
-          {posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onOpen={() => setSelectedPost(post)}
-            />
-          ))}
-        </section>
-      </div>
+    <div className="mx-auto max-w-xl px-4 py-6 pb-20 md:pb-6">
+      <Stories />
+      <section className="mt-2 space-y-4">
+        {posts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            onOpen={() => setSelectedPost(post)}
+          />
+        ))}
+      </section>
+
       {selectedPost && (
         <PostDetailModal
           post={selectedPost}
