@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import initialPosts from "../data/mockData";
+import { saveImage } from "../utils/imageStorage";
 
 const PostContext = createContext();
 
@@ -52,27 +53,100 @@ export const PostProvider = ({ children }) => {
       ),
     );
   };
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState(() => {
+    try {
+      const savedPosts = localStorage.getItem("loop-posts");
+      return savedPosts ? JSON.parse(savedPosts) : initialPosts;
+    } catch {
+      return initialPosts;
+    }
+  });
 
-  const createPost = ({ imageFile, caption }) => {
+  useEffect(() => {
+    localStorage.setItem("loop-posts", JSON.stringify(posts));
+  }, [posts]);
+
+  const createPost = async ({ imageFile, caption }) => {
+    const postId = crypto.randomUUID();
+
+    // Save the image file in IndexedDB first
+    await saveImage(postId, imageFile);
+
     const newPost = {
-      id: crypto.randomUUID(),
+      id: postId,
       username: "Farhan",
       avatar: "https://i.pravatar.cc/150?img=12",
-      image: URL.createObjectURL(imageFile),
+
+      // Store the image ID instead of a temporary URL
+      imageId: postId,
+
       imageAlt: "New post",
       location: "",
       likes: 0,
       caption,
-      timeAgo: "Just Now",
+      timeAgo: "Just now",
       likedByCurrentUser: false,
+      savedByCurrentUser: false,
       comments: [],
     };
+
     setPosts((currentPosts) => [newPost, ...currentPosts]);
   };
+
+  const deletePost = async (postId) => {
+    const postToDelete = posts.find((post) => post.id === postId);
+    if (!postToDelete) return;
+
+    // Remove the post from shared state first.
+    setPosts((currentPosts) =>
+      currentPosts.filter((post) => post.id !== postId),
+    );
+
+    // Remove its stored image, if it has one.
+    if (postToDelete.imageId) {
+      try {
+        await deleteImage(postToDelete.imageId);
+      } catch (error) {
+        console.error("Failed to delete stored image:", error);
+      }
+    }
+  };
+
+  const deleteComment = (postId, commentId) => {
+    setPosts((currentPosts) =>
+      currentPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              comments: post.comments.filter(
+                (comment) => comment.id !== commentId,
+              ),
+            }
+          : post,
+      ),
+    );
+  };
+
+  const updatePost = (postId, updates) => {
+    setPosts((currentPosts) =>
+      currentPosts.map((post) =>
+        post.id === postId ? { ...post, ...updates } : post,
+      ),
+    );
+  };
+
   return (
     <PostContext.Provider
-      value={{ posts, createPost, toggleLike, addComment, toggleBookmark }}
+      value={{
+        posts,
+        createPost,
+        toggleLike,
+        addComment,
+        toggleBookmark,
+        deletePost,
+        updatePost,
+        deleteComment,
+      }}
     >
       {children}
     </PostContext.Provider>

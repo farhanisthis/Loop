@@ -14,10 +14,7 @@ import { NavLink } from "react-router-dom";
 
 const navigationitems = [
   { label: "Home", icon: Home, path: "/" },
-  { label: "Search", icon: Search, path: "/search" },
-  { label: "Explore", icon: Compass, path: "/explore" },
-  { label: "Messages", icon: MessageCircle, path: "/messages" },
-  { label: "Notifications", icon: Bell, path: "/notifications" },
+  // { label: "Messages", icon: MessageCircle, path: "/messages" },
   { label: "Create", icon: PlusSquare, path: "/create" },
   { label: "My Loops", icon: Infinity, path: "/loops" },
   { label: "Profile", icon: UserRound, path: "/profile" },

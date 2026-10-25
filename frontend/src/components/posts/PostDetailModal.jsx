@@ -1,9 +1,30 @@
 import { useEffect, useState } from "react";
-import { Heart, MessageCircle, Send, X, MoreHorizontal } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Send,
+  X,
+  MoreHorizontal,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 import { usePosts } from "../../context/PostContext";
+import StoredImage from "../common/StoredImage";
 
 function PostDetailModal({ post, onClose }) {
-  const { posts, toggleLike, addComment } = usePosts();
+  const {
+    posts,
+    toggleLike,
+    addComment,
+    updatePost,
+    deletePost,
+    deleteComment,
+  } = usePosts();
+
+  const [showPostMenu, setShowPostMenu] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editedCaption, setEditedCaption] = useState(post.caption ?? "");
   const [commentText, setCommentText] = useState("");
 
   // Always use the latest version of this post from Context.
@@ -62,8 +83,9 @@ function PostDetailModal({ post, onClose }) {
 
         {/* Post image */}
         <div className="flex min-h-0 items-center justify-center bg-black md:w-[55%]">
-          <img
-            src={currentPost.image}
+          <StoredImage
+            imageId={currentPost.imageId}
+            fallbackSrc={currentPost.image}
             alt={currentPost.imageAlt || `Post by ${currentPost.username}`}
             className="max-h-[40dvh] w-full object-contain md:max-h-[85dvh]"
           />
@@ -72,6 +94,7 @@ function PostDetailModal({ post, onClose }) {
         {/* Post details */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col md:w-[45%]">
           {/* Author header */}
+
           <header className="flex items-center gap-3 border-b border-gray-100 p-4">
             <img
               src={currentPost.avatar}
@@ -90,13 +113,45 @@ function PostDetailModal({ post, onClose }) {
               )}
             </div>
 
-            <button
-              type="button"
-              aria-label="More post options"
-              className="rounded-full p-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
-            >
-              <MoreHorizontal size={21} />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                aria-label="More post options"
+                onClick={() => setShowPostMenu((open) => !open)}
+                className="rounded-full p-2 text-gray-600 hover:bg-gray-100"
+              >
+                <MoreHorizontal size={21} />
+              </button>
+
+              {showPostMenu && (
+                <div className="absolute right-0 top-full z-40 mt-1 w-44 rounded-xl border border-gray-200 bg-white p-1 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditedCaption(currentPost.caption ?? "");
+                      setShowPostMenu(false);
+                      setShowEditModal(true);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <Pencil size={16} />
+                    Edit caption
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPostMenu(false);
+                      setShowDeleteConfirm(true);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={16} />
+                    Delete post
+                  </button>
+                </div>
+              )}
+            </div>
           </header>
 
           {/* Caption and comments */}
@@ -153,6 +208,13 @@ function PostDetailModal({ post, onClose }) {
                       </p>
                     )}
                   </div>
+                  <button
+                    onClick={() => deleteComment(post.id, comment.id)}
+                    aria-label="Delete comment"
+                    title="Delete comment"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               ))
             )}
@@ -219,6 +281,102 @@ function PostDetailModal({ post, onClose }) {
           </form>
         </div>
       </section>
+
+      {showEditModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowEditModal(false)}
+        >
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              updatePost(currentPost.id, {
+                caption: editedCaption.trim(),
+              });
+              setShowEditModal(false);
+            }}
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+          >
+            <h2 className="text-lg font-bold text-gray-900">Edit caption</h2>
+
+            <textarea
+              autoFocus
+              value={editedCaption}
+              onChange={(event) => setEditedCaption(event.target.value)}
+              maxLength={500}
+              rows={4}
+              placeholder="Write a caption..."
+              className="mt-4 w-full resize-none rounded-xl border border-gray-300 p-3 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+            />
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="rounded-lg px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+              >
+                Save changes
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="modal-delete-title"
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+          >
+            <h2
+              id="modal-delete-title"
+              className="text-lg font-bold text-gray-900"
+            >
+              Delete this post?
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+              This action cannot be undone.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="rounded-lg px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  await deletePost(currentPost.id);
+                  setShowDeleteConfirm(false);
+                  onClose();
+                }}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

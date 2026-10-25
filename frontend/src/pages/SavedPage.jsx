@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bookmark } from "lucide-react";
 import { usePosts } from "../context/PostContext";
 import PostDetailModal from "../components/posts/PostDetailModal";
+import StoredImage from "../components/common/StoredImage";
 
 const SavedPage = () => {
   const { posts } = usePosts();
@@ -39,8 +40,9 @@ const SavedPage = () => {
               aria-label={`Open saved post by ${post.username}`}
               className="group relative aspect-square cursor-pointer overflow-hidden bg-gray-100"
             >
-              <img
-                src={post.image}
+              <StoredImage
+                imageId={post.imageId}
+                fallbackSrc={post.image}
                 alt={post.imageAlt || post.caption || "Saved post"}
                 className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
               />

@@ -2,6 +2,7 @@ import { usePosts } from "../context/PostContext";
 import { Settings, Grid3X3, Bookmark } from "lucide-react";
 import { useState } from "react";
 import PostDetailModal from "../components/posts/PostDetailModal";
+import StoredImage from "../components/common/StoredImage";
 
 const ProfilePage = () => {
   const { posts } = usePosts();
@@ -93,8 +94,9 @@ const ProfilePage = () => {
                 key={post.id}
                 className="group relative aspect-square overflow-hidden bg-gray-100 cursor-pointer"
               >
-                <img
-                  src={post.image}
+                <StoredImage
+                  imageId={post.imageId}
+                  fallbackSrc={post.image}
                   alt={post.imageAlt || post.caption || "Post"}
                   onClick={() => setSelectedPost(post)}
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-105"

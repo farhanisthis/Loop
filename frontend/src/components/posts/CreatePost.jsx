@@ -41,7 +41,7 @@ const CreatePost = () => {
     setImageFile(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!imageFile) {
@@ -49,17 +49,21 @@ const CreatePost = () => {
       return;
     }
 
-    createPost({
-      imageFile,
-      caption: caption.trim(),
-      savedByCurrentUser: false,
-    });
+    try {
+      await createPost({
+        imageFile,
+        caption: caption.trim(),
+      });
 
-    setImageFile(null);
-    setCaption("");
-    e.target.reset();
+      setImageFile(null);
+      setCaption("");
+      e.target.reset();
 
-    navigate("/");
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      alert("Could not create the post. Please try again.");
+    }
   };
 
   return (

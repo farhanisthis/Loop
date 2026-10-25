@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import Sidebar from "./components/layout/Sidebar";
 import CreatePost from "./components/posts/CreatePost";
 import SavedPage from "./pages/SavedPage";
+import MobileNav from "./components/layout/MobileNav";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import initialPosts from "./data/mockData";
@@ -33,6 +34,7 @@ const App = () => {
       <BrowserRouter>
         <div className="min-h-screen bg-[#faf7fb]">
           <Sidebar />
+          <MobileNav />
 
           <main className="w-full md:ml-[235px] md:w-[calc(100%-235px)]">
             <Routes>
